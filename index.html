@@ -116,6 +116,25 @@ footer a { color: var(--moon); }
 .plat { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; }
 .handle { color: var(--moon-dim); font-size: 0.92rem; overflow-wrap: anywhere; }
 
+.support { gap: 14px; }
+.support p { margin: 0; max-width: 60ch; color: var(--moon-dim); }
+.amounts { display: flex; flex-wrap: wrap; gap: 10px; }
+.amt { font-family: var(--font-body); font-weight: 700; font-size: 1.3rem; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; color: var(--moon); background: var(--panel); border: 2px solid var(--line); padding: 10px 18px; cursor: pointer; box-shadow: 3px 3px 0 var(--deep); }
+.amt:hover { border-color: var(--accent); }
+.amt:focus-visible, .copy:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.amt[aria-pressed="true"] { background: var(--moon); color: var(--night); border-color: var(--moon); box-shadow: 3px 3px 0 var(--accent); }
+.custom { display: flex; flex-direction: column; gap: 6px; max-width: 260px; }
+.custom label { font-size: 0.9rem; color: var(--moon-dim); }
+.pay-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+#pay { font-family: var(--font-body); font-size: 1.2rem; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+.custom .search { font-size: 1.25rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+.btn.disabled { opacity: 0.45; pointer-events: none; box-shadow: none; }
+.hint { font-size: 0.9rem; color: var(--moon-dim); }
+.upi { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 0.95rem; color: var(--moon-dim); }
+.upi code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; color: var(--moon); background: var(--deep); border: 1px solid var(--line); padding: 3px 8px; overflow-wrap: anywhere; min-width: 0; }
+.copy { cursor: pointer; font: inherit; font-size: 0.9rem; color: var(--moon); background: transparent; border: 2px solid var(--line); padding: 4px 12px; }
+.copy:hover { border-color: var(--accent); }
+
 @media (max-width: 520px) {
   .hero { grid-template-columns: 1fr; }
   #moon { order: -1; }
@@ -175,6 +194,26 @@ footer a { color: var(--moon); }
     <div class="grid" id="grid"></div>
     <p class="empty" id="empty" hidden>No websites match that search.</p>
     <button class="btn more" id="more" type="button" hidden>Show more</button>
+  </section>
+
+  <section class="support" id="support" hidden>
+    <h2>Support PixelMoon</h2>
+    <p>If you like my websites, you can help me build my future projects. Pick an amount or type your own.</p>
+    <div class="amounts" id="amounts" role="group" aria-label="Choose an amount"></div>
+    <div class="custom" id="customWrap" hidden>
+      <label for="custom">Your amount in rupees</label>
+      <input class="search" id="custom" type="number" inputmode="numeric" min="1" max="50000" step="1" placeholder="For example 75">
+    </div>
+    <div class="pay-row">
+      <a class="btn disabled" id="pay" role="button" aria-disabled="true">Donate</a>
+      <span class="hint" id="hint">Choose an amount</span>
+    </div>
+    <div class="upi">
+      <span>Or pay to this UPI ID:</span>
+      <code id="upiId"></code>
+      <button class="copy" id="copy" type="button">Copy</button>
+    </div>
+    <p class="hint">The Donate button opens your UPI app, like Google Pay, PhonePe or Paytm. If nothing opens (for example inside Instagram), open this page in Chrome or Safari, or copy the UPI ID and pay from your phone. Thank you, it really helps.</p>
   </section>
 
   <section id="find">
@@ -369,6 +408,86 @@ function hostOf(url) {
     ig.textContent = 'Follow on Instagram';
     document.getElementById('ig').appendChild(ig);
   }
+})();
+</script>
+
+<script>
+/* DONATE: your UPI ID and the name shown on the payment. Leave upi as "" to hide the Support section. */
+const DONATE = { upi: "shabnamkhatun138-1@okaxis", name: "PixelMoon" };
+
+(function support() {
+  if (!DONATE.upi) return;
+  const section = document.getElementById('support');
+  const box = document.getElementById('amounts');
+  const customWrap = document.getElementById('customWrap');
+  const custom = document.getElementById('custom');
+  const pay = document.getElementById('pay');
+  const hint = document.getElementById('hint');
+  const presets = [20, 50, 100, 500];
+  const buttons = [];
+  let choice = 0; /* a preset amount, or -1 for a custom amount */
+
+  function amount() {
+    if (choice === -1) {
+      const v = Number(custom.value);
+      return Number.isInteger(v) && v >= 1 && v <= 50000 ? v : 0;
+    }
+    return choice;
+  }
+  function refresh() {
+    const a = amount();
+    if (a) {
+      pay.href = 'upi://pay?pa=' + encodeURIComponent(DONATE.upi).replace('%40', '@') + '&pn=' + encodeURIComponent(DONATE.name) + '&am=' + a + '&cu=INR&tn=' + encodeURIComponent('Support PixelMoon');
+      pay.classList.remove('disabled');
+      pay.setAttribute('aria-disabled', 'false');
+      pay.textContent = 'Donate ₹' + a;
+      hint.textContent = 'Opens your UPI app';
+    } else {
+      pay.removeAttribute('href');
+      pay.classList.add('disabled');
+      pay.setAttribute('aria-disabled', 'true');
+      pay.textContent = 'Donate';
+      hint.textContent = choice === -1 ? 'Enter a whole amount from ₹1 to ₹50,000' : 'Choose an amount';
+    }
+  }
+  function select(value, focusCustom) {
+    choice = value;
+    buttons.forEach(function (b) { b.el.setAttribute('aria-pressed', String(b.value === value)); });
+    customWrap.hidden = value !== -1;
+    if (value === -1 && focusCustom) custom.focus();
+    refresh();
+  }
+  presets.concat([-1]).forEach(function (v) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'amt';
+    b.textContent = v === -1 ? 'Custom' : '₹' + v;
+    b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', function () { select(v, true); });
+    box.appendChild(b);
+    buttons.push({ el: b, value: v });
+  });
+  custom.addEventListener('input', refresh);
+
+  document.getElementById('upiId').textContent = DONATE.upi;
+  const copyBtn = document.getElementById('copy');
+  copyBtn.addEventListener('click', function () {
+    function done(msg) { copyBtn.textContent = msg; setTimeout(function () { copyBtn.textContent = 'Copy'; }, 1800); }
+    function fallback() {
+      const r = document.createRange();
+      r.selectNodeContents(document.getElementById('upiId'));
+      const s = window.getSelection();
+      s.removeAllRanges();
+      s.addRange(r);
+      done('Now press copy');
+    }
+    try {
+      navigator.clipboard.writeText(DONATE.upi).then(function () { done('Copied'); }, fallback);
+    } catch (e) { fallback(); }
+  });
+
+  section.hidden = false;
+  select(50, false);
 })();
 </script>
 
