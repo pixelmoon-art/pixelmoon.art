@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PixelMoon</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+/* Layout: one centered column on a night sky. Pixel moon hero, About, then a grid of site cards. Single dark look by choice. */
+:root {
+  --night: #0b0e22;
+  --deep: #070918;
+  --panel: #151936;
+  --line: #2b3166;
+  --moon: #f3eed2;
+  --moon-dim: #b9b393;
+  --accent: #9aa5ff;
+  --font-display: 'Pixelify Sans', 'Courier New', monospace;
+  --font-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: dark;
+}
+html { scroll-behavior: auto; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body {
+  margin: 0;
+  background: var(--night);
+  color: var(--moon);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+}
+#stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.star { position: absolute; background: var(--moon); opacity: 0.7; }
+@keyframes tw { 50% { opacity: 0.15; } }
+@media (prefers-reduced-motion: no-preference) { .star.tw { animation: tw 3s steps(2) infinite; } }
+
+.wrap { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+
+header.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; letter-spacing: 0.04em; color: var(--moon); text-decoration: none; }
+nav { display: flex; gap: 20px; }
+nav a { color: var(--moon-dim); text-decoration: none; font-weight: 500; font-size: 0.95rem; padding: 4px 0; border-bottom: 2px solid transparent; }
+nav a:hover { color: var(--moon); border-bottom-color: var(--accent); }
+a:focus-visible, .btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 28px; }
+.hero-text { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
+h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.5rem, 11vw, 4.75rem);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+  text-shadow: 0 0 28px rgba(243, 238, 210, 0.28);
+}
+.tagline { margin: 0; max-width: 34ch; font-size: 1.15rem; color: var(--moon-dim); text-wrap: pretty; }
+.btn {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.03em;
+  color: var(--night);
+  background: var(--moon);
+  border: 2px solid var(--moon);
+  padding: 12px 22px;
+  text-decoration: none;
+  box-shadow: 5px 5px 0 var(--accent);
+  transition: transform 0.08s steps(2), box-shadow 0.08s steps(2);
+}
+.btn:hover { transform: translate(2px, 2px); box-shadow: 3px 3px 0 var(--accent); }
+.btn:active { transform: translate(5px, 5px); box-shadow: 0 0 0 var(--accent); }
+#moon { width: min(180px, 40vw); aspect-ratio: 1; image-rendering: pixelated; display: block; filter: drop-shadow(0 0 22px rgba(243, 238, 210, 0.3)); }
+
+section { scroll-margin-top: 16px; display: flex; flex-direction: column; gap: 16px; }
+h2 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 1.9rem; letter-spacing: 0.03em; text-wrap: balance; }
+.about p { margin: 0; max-width: 60ch; font-size: 1.05rem; text-wrap: pretty; }
+.about p + p { color: var(--moon-dim); }
+
+.sites-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+.count { font-family: var(--font-display); color: var(--accent); font-size: 1.05rem; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 22px; }
+.card { min-width: 0; display: flex; flex-direction: column; background: var(--panel); border: 2px solid var(--line); box-shadow: 5px 5px 0 var(--deep); }
+.thumb { display: block; width: 100%; aspect-ratio: 8 / 5; image-rendering: pixelated; border-bottom: 2px solid var(--line); background: var(--deep); }
+.card-body { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 16px; min-width: 0; }
+.tag { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--line); padding: 2px 8px; }
+.card h3 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; line-height: 1.2; overflow-wrap: anywhere; }
+.card p { margin: 0; color: var(--moon-dim); font-size: 0.97rem; flex: 1; }
+.host { font-size: 0.85rem; color: var(--moon-dim); overflow-wrap: anywhere; }
+.visit { margin-top: 6px; font-family: var(--font-display); font-weight: 700; color: var(--moon); text-decoration: none; border-bottom: 2px solid var(--accent); padding-bottom: 1px; }
+.visit:hover { color: var(--accent); }
+
+footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; color: var(--moon-dim); font-size: 0.9rem; border-top: 2px solid var(--line); padding-top: 18px; }
+footer a { color: var(--moon); }
+
+.search { width: 100%; box-sizing: border-box; font: inherit; font-size: 1rem; color: var(--moon); background: var(--deep); border: 2px solid var(--line); padding: 12px 14px; border-radius: 0; }
+.search::placeholder { color: var(--moon-dim); }
+.search:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-color: var(--accent); }
+.more { align-self: center; cursor: pointer; }
+.empty { margin: 0; color: var(--moon-dim); }
+.mini { margin: 8px 0 0; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; color: var(--accent); }
+.chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.chips li { border: 2px solid var(--line); background: var(--panel); padding: 4px 12px; font-size: 0.95rem; }
+.socials { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 14px; }
+.social { display: flex; flex-direction: column; gap: 2px; min-width: 0; text-decoration: none; color: var(--moon); background: var(--panel); border: 2px solid var(--line); padding: 12px 14px; box-shadow: 4px 4px 0 var(--deep); }
+.social:hover { border-color: var(--accent); }
+.plat { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; }
+.handle { color: var(--moon-dim); font-size: 0.92rem; overflow-wrap: anywhere; }
+
+@media (max-width: 520px) {
+  .hero { grid-template-columns: 1fr; }
+  #moon { order: -1; }
+  .wrap { gap: 44px; }
+}
+</style>
+</head>
+<body>
+
+<div id="stars" aria-hidden="true"></div>
+
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#top">PixelMoon</a>
+    <nav aria-label="Page sections">
+      <a href="#about">About</a>
+      <a href="#sites">Websites</a>
+      <a href="#find">Find me</a>
+    </nav>
+  </header>
+
+  <div class="hero" id="top">
+    <div class="hero-text">
+      <h1>PixelMoon</h1>
+      <p class="tagline">Every website I have posted on Instagram, in one place.</p>
+      <a class="btn" href="#sites">Check websites</a>
+    </div>
+    <canvas id="moon" width="16" height="16" role="img" aria-label="Pixel art moon"></canvas>
+  </div>
+
+  <section class="about" id="about">
+    <h2>About</h2>
+    <p>Hi, I'm Bobby, and I do this work under the name PixelMoon. I build websites and Discord bots, and I work with AI. Apps are coming soon.</p>
+    <p>I picked the name PixelMoon because I liked it. It popped into my head one day and nothing else felt right.</p>
+    <p class="mini">What I make</p>
+    <ul class="chips">
+      <li>Birthday</li>
+      <li>Anniversary</li>
+      <li>Apology</li>
+      <li>Gift</li>
+      <li>Surprise</li>
+      <li>Games</li>
+      <li>About pages</li>
+      <li>Dashboards</li>
+      <li>Discord bots</li>
+      <li>And many more</li>
+    </ul>
+    <p>I'm a teenager who works a lot and learns something new every day. I make my websites cute and aesthetic. New ones get added here as soon as I post them.</p>
+  </section>
+
+  <section id="sites">
+    <div class="sites-head">
+      <h2>My websites</h2>
+      <span class="count" id="count"></span>
+    </div>
+    <input class="search" id="search" type="search" placeholder="Search websites" aria-label="Search websites" autocomplete="off" hidden>
+    <div class="grid" id="grid"></div>
+    <p class="empty" id="empty" hidden>No websites match that search.</p>
+    <button class="btn more" id="more" type="button" hidden>Show more</button>
+  </section>
+
+  <section id="find">
+    <h2>Find me</h2>
+    <ul class="socials">
+      <li><a class="social" href="https://www.instagram.com/pixelmoon.art" target="_blank" rel="noopener noreferrer"><span class="plat">Instagram</span><span class="handle">pixelmoon.art</span></a></li>
+      <li><a class="social" href="https://www.instagram.com/itz.bobby._.078" target="_blank" rel="noopener noreferrer"><span class="plat">Instagram (personal)</span><span class="handle">itz.bobby._.078</span></a></li>
+      <li><a class="social" href="https://x.com/itzbobby078" target="_blank" rel="noopener noreferrer"><span class="plat">X (Twitter)</span><span class="handle">itzbobby078</span></a></li>
+      <li><a class="social" href="https://discord.com/users/1421451918345109595" target="_blank" rel="noopener noreferrer"><span class="plat">Discord</span><span class="handle">itz.bobby._.078</span></a></li>
+      <li><a class="social" href="https://t.me/bobby" target="_blank" rel="noopener noreferrer"><span class="plat">Telegram</span><span class="handle">bobby</span></a></li>
+    </ul>
+  </section>
+
+  <footer>
+    <span>PixelMoon by Bobby. More websites coming soon.</span>
+    <span id="ig"></span>
+  </footer>
+</div>
+
+<script>
+/* ADD A WEBSITE: copy one { ... } block, paste it at the top of the list (newest shows first, keep the comma), and change the four fields.
+   Set INSTAGRAM to your profile link to show an Instagram link in the footer. */
+const INSTAGRAM = "";
+const SITES = [
+  { name: "Website One", tag: "Example", description: "Replace this with one short line about what this website does.", url: "https://example.com" },
+  { name: "Website Two", tag: "Example", description: "Replace this with one short line about what this website does.", url: "https://example.org" }
+];
+
+function hash(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function rng(seed) {
+  let s = seed || 1;
+  return function () { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; };
+}
+
+/* Pixel moon */
+(function drawMoon() {
+  const c = document.getElementById('moon');
+  const g = c.getContext('2d');
+  const craters = ['5,4', '6,4', '5,5', '10,8', '11,8', '10,9', '11,9', '5,11', '6,11', '9,3'];
+  for (let y = 0; y < 16; y++) {
+    for (let x = 0; x < 16; x++) {
+      const d = Math.hypot(x - 7.5, y - 7.5);
+      if (d > 7.6) continue;
+      let col = '#f3eed2';
+      if ((x - 7.5) * 0.8 + (y - 7.5) * 0.6 > 3.2) col = '#d9d3ad';
+      if (craters.indexOf(x + ',' + y) !== -1) col = '#c4be9a';
+      g.fillStyle = col;
+      g.fillRect(x, y, 1, 1);
+    }
+  }
+})();
+
+/* Stars */
+(function stars() {
+  const box = document.getElementById('stars');
+  const r = rng(7);
+  for (let i = 0; i < 48; i++) {
+    const s = document.createElement('span');
+    const size = r() < 0.75 ? 2 : 3;
+    s.className = 'star' + (r() < 0.4 ? ' tw' : '');
+    s.style.left = (r() * 100).toFixed(2) + '%';
+    s.style.top = (r() * 100).toFixed(2) + '%';
+    s.style.width = s.style.height = size + 'px';
+    s.style.animationDelay = (r() * 3).toFixed(2) + 's';
+    box.appendChild(s);
+  }
+})();
+
+/* Pixel thumbnail, unique per site name */
+function drawThumb(canvas, name) {
+  const g = canvas.getContext('2d');
+  const r = rng(hash(name));
+  const palette = ['#9aa5ff', '#f3eed2', '#6c78e0', '#3a418a', '#2b3166'];
+  for (let y = 0; y < 10; y++) {
+    for (let x = 0; x < 8; x++) {
+      if (r() < 0.45) continue;
+      g.fillStyle = palette[Math.floor(r() * palette.length)];
+      g.fillRect(x, y, 1, 1);
+      g.fillRect(15 - x, y, 1, 1);
+    }
+  }
+}
+
+function hostOf(url) {
+  try { return new URL(url).host; } catch (e) { return url; }
+}
+
+(function render() {
+  const grid = document.getElementById('grid');
+  const PAGE = 12;
+  let shown = 0;
+  let list = SITES.slice();
+
+  function makeCard(s) {
+    const card = document.createElement('article');
+    card.className = 'card';
+
+    const thumb = document.createElement('canvas');
+    thumb.className = 'thumb';
+    thumb.width = 16; thumb.height = 10;
+    thumb.setAttribute('aria-hidden', 'true');
+    drawThumb(thumb, s.name);
+
+    const body = document.createElement('div');
+    body.className = 'card-body';
+
+    if (s.tag) {
+      const tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = s.tag;
+      body.appendChild(tag);
+    }
+    const h = document.createElement('h3');
+    h.textContent = s.name;
+    const p = document.createElement('p');
+    p.textContent = s.description;
+    const host = document.createElement('span');
+    host.className = 'host';
+    host.textContent = hostOf(s.url);
+    const a = document.createElement('a');
+    a.className = 'visit';
+    a.href = s.url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = 'Visit website';
+    a.setAttribute('aria-label', 'Visit ' + s.name);
+
+    body.appendChild(h);
+    body.appendChild(p);
+    body.appendChild(host);
+    body.appendChild(a);
+    card.appendChild(thumb);
+    card.appendChild(body);
+    return card;
+  }
+
+  const search = document.getElementById('search');
+  const more = document.getElementById('more');
+  const empty = document.getElementById('empty');
+  const count = document.getElementById('count');
+  if (SITES.length > 8) search.hidden = false;
+
+  function showMore() {
+    list.slice(shown, shown + PAGE).forEach(function (s) { grid.appendChild(makeCard(s)); });
+    shown = Math.min(shown + PAGE, list.length);
+    more.hidden = shown >= list.length;
+    more.textContent = 'Show more (' + (list.length - shown) + ' left)';
+  }
+  function apply() {
+    const q = search.value.trim().toLowerCase();
+    list = SITES.filter(function (s) {
+      return !q || (s.name + ' ' + (s.tag || '') + ' ' + s.description).toLowerCase().indexOf(q) !== -1;
+    });
+    grid.textContent = '';
+    shown = 0;
+    empty.hidden = list.length > 0;
+    showMore();
+    count.textContent = (q ? list.length + ' of ' : '') + SITES.length + (SITES.length === 1 ? ' website' : ' websites') + (q ? '' : ', more soon');
+  }
+  more.addEventListener('click', showMore);
+  search.addEventListener('input', apply);
+  apply();
+
+  /* the count text is set by apply() above */
+
+  if (INSTAGRAM) {
+    const ig = document.createElement('a');
+    ig.href = INSTAGRAM;
+    ig.target = '_blank';
+    ig.rel = 'noopener noreferrer';
+    ig.textContent = 'Follow on Instagram';
+    document.getElementById('ig').appendChild(ig);
+  }
+})();
+</script>
+
+</body>
+</html>
